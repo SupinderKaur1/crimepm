@@ -1,45 +1,46 @@
-import urllib
-# If you are using Python 3+, import urllib instead of urllib2
+import json
+import requests
 
-import json 
-
-
-data =  {
-
-        "Inputs": {
-
-                "input1":
-                {
-                    "ColumnNames": ["DR_NO", "Date Rptd", "TIME OCC", "AREA", "AREA NAME", "Crm Cd", "Crm Cd Desc", "Vict Age", "Vict Sex", "Vict Descent", "Premis Cd", "Premis Desc", "Weapon Used Cd", "Weapon Desc", "Status", "Status Desc", "Latitude", "Longitude", "Day of week"],
-                    "Values": [ [ "0", "", "0", "0", "value", "0", "value", "0", "value", "value", "0", "value", "0", "value", "value", "value", "0", "0", "value" ], [ "0", "", "0", "0", "value", "0", "value", "0", "value", "value", "0", "value", "0", "value", "value", "value", "0", "0", "value" ], ]
-                },        },
-            "GlobalParameters": {
+# Define the input data for your Azure ML model
+data = {
+    "Inputs": {
+        "input1": {
+            "ColumnNames": ["DR_NO", "Date Rptd", "TIME OCC", "AREA", "AREA NAME", "Crm Cd", "Crm Cd Desc",
+                            "Vict Age", "Vict Sex", "Vict Descent", "Premis Cd", "Premis Desc", "Weapon Used Cd",
+                            "Weapon Desc", "Status", "Status Desc", "Latitude", "Longitude", "Day of week"],
+            "Values": [
+                ["0", "", "0", "0", "value", "0", "value", "0", "value", "value", "0", "value", "0", "value",
+                 "value", "value", "0", "0", "value"],
+                ["0", "", "0", "0", "value", "0", "value", "0", "value", "value", "0", "value", "0", "value",
+                 "value", "value", "0", "0", "value"]
+            ]
+        }
+    },
+    "GlobalParameters": {}
 }
-    }
 
-body = str.encode(json.dumps(data))
+# Convert the data to JSON format
+body = json.dumps(data)
 
+# Define the URL of your Azure ML web service
 url = 'https://ussouthcentral.services.azureml.net/workspaces/f461ccab92704d34bd07316b6b652720/services/a4141298b3194202a177356b48e09b79/execute?api-version=2.0&details=true'
-api_key = 'NKvgVRoRB9Y3TISdIDAuiZko79jey+SiKqhEWOLWIVT4+U8fneAyf8H8mZnj+oiY6c1eX64AoYNC+AMCtOr5Tg==' # Replace this with the API key for the web service
-headers = {'Content-Type':'application/json', 'Authorization':('Bearer '+ api_key)}
 
-#req = urllib2.Request(url, body, headers) 
-req = urllib.request.Request(url, body, headers) 
+# Define the API key for your Azure ML web service
+api_key = 'NKvgVRoRB9Y3TISdIDAuiZko79jey+SiKqhEWOLWIVT4+U8fneAyf8H8mZnj+oiY6c1eX64AoYNC+AMCtOr5Tg=='
 
-try:
-    #response = urllib2.urlopen(req)
-    response = urllib.request.urlopen(req)
+# Define the headers for the request
+headers = {'Content-Type': 'application/json', 'Authorization': ('Bearer ' + api_key)}
 
-    # If you are using Python 3+, replace urllib2 with urllib.request in the above code:
-    # req = urllib.request.Request(url, body, headers) 
-    # response = urllib.request.urlopen(req)
+# Make a POST request to the Azure ML web service
+response = requests.post(url, data=body, headers=headers)
 
-    result = response.read()
-    print(result) 
-except urllib2.HTTPError, error:
-    print("The request failed with status code: " + str(error.code))
-
-    # Print the headers - they include the requert ID and the timestamp, which are useful for debugging the failure
-    print(error.info())
-
-    print(json.loads(error.read()))                 
+# Check if the request was successful
+if response.status_code == 200:
+    # Parse the JSON response
+    result = response.json()
+    print(result)
+else:
+    # Print an error message if the request fails
+    print("The request failed with status code:", response.status_code)
+    print(response.text)
+            
