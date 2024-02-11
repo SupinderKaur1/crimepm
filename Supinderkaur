@@ -43,5 +43,3 @@ else:
     # Print an error message if the request fails
     print("The request failed with status code:", response.status_code)
     print(response.text)
-
-            
